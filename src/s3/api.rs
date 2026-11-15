@@ -1,4 +1,4 @@
-use std::{fs::File, path::Path};
+use std::{fs::File, io::Read, path::Path};
 
 use s3::{self, Bucket, Region, creds::Credentials};
 
@@ -20,14 +20,26 @@ pub async fn test() {
         .unwrap()
         .with_path_style();
 
-    let file = File::open(Path::new(""));
+    let mut file = File::open(Path::new("files/test.txt")).expect("failed to open file");
 
-    todo!("open the file & read into a buffer to upload to r2");
+    let mut buf = vec![];
+
+    file.read_to_end(&mut buf).expect("failed to read file");
 
     let upload = bucket
         .initiate_multipart_upload("", "application/text")
         .await
         .unwrap();
 
-    bucket.put_multipart_chunk(chunk, path, part_number, upload_id, content_type)
+    let part = bucket
+        .put_multipart_chunk(buf, "test_file", 1, &upload.upload_id, "application/text")
+        .await
+        .expect("failed to put multipart chunk into upload");
+
+    bucket
+        .complete_multipart_upload("test_file", &upload.upload_id, vec![part])
+        .await
+        .expect("failed to complete multipart upload");
+
+    drop(bucket);
 }
