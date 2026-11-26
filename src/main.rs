@@ -23,9 +23,8 @@ mod storage;
 use clap::{Arg, ArgAction, Command};
 
 // TODO: change this to be compile-time injected
-pub const SEM_VER: &str = "0.0.1-alpha";
+pub const SEM_VER: &str = "0.0.1-prealpha";
 
-// TODO: expand with more commands
 // TODO: create watch command
 fn cli() -> Command {
     Command::new("nsync")
