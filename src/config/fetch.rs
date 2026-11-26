@@ -1,4 +1,3 @@
-use core::panic;
 use std::{
     env,
     fs::{self},
@@ -9,8 +8,9 @@ use std::{
 const CONFIG_PATH: &str = ".config/nsync";
 #[cfg(target_os = "windows")]
 const CONFIG_PATH: &str = "Program Files\\nsync";
+// TODO: macOS target
 
-pub fn get_config_path() -> PathBuf {
+pub fn create_config_path() -> PathBuf {
     let format = &format!(
         "{}{}",
         env::home_dir().unwrap().display(),

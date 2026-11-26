@@ -1,6 +1,6 @@
 // src/storage/vendor/r2.rs
 use s3::{self, Bucket, Region};
-use std::{os::unix::fs::MetadataExt, path::Path};
+use std::path::Path;
 use tokio::{
     fs::{self, File},
     io::{AsyncReadExt, BufReader},
@@ -24,7 +24,7 @@ impl StorageBackend for R2Controller {
     // upload will upload a file thats >6mib
     async fn upload(&self, file_path: &Path) -> Option<[u8; 32]> {
         let file_metadata = fs::metadata(file_path).await.unwrap();
-        if file_metadata.size() < PART_SIZE as u64 {
+        if file_metadata.len() < PART_SIZE as u64 {
             return None;
         }
 
