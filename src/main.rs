@@ -19,12 +19,11 @@
 #[forbid(unsafe_code)]
 mod config;
 mod storage;
-mod logger;
 
 use clap::{Arg, ArgAction, Command};
 
 // TODO: change this to be compile-time injected
-const SEM_VER: &str = "0.0.1-alpha";
+pub const SEM_VER: &str = "0.0.1-alpha";
 
 // TODO: expand with more commands
 // TODO: create watch command

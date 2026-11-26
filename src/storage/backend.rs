@@ -3,7 +3,9 @@ use std::path::Path;
 pub trait StorageBackend {
     async fn upload(&self, file_path: &Path) -> [u8; 32]; // multipart
 
-    async fn put(); // small files
+    async fn put(&self, file_path: &Path); // small files
+
+    async fn put_manifest(&self, m: serde_json::Value); // manifest files
 
     async fn delete();
 

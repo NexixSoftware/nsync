@@ -1,6 +1,6 @@
 // src/storage/vendor/r2.rs
 use s3::{self, Bucket, Region};
-use std::path::Path;
+use std::{os::unix::fs::MetadataExt, path::Path};
 use tokio::{
     fs::{self, File},
     io::{AsyncReadExt, BufReader},
@@ -8,7 +8,7 @@ use tokio::{
 
 use crate::{
     config::credentials::{AllowedCredentials, get_credentials},
-    storage::backend::StorageBackend,
+    storage::{backend::StorageBackend, manifest::Manifest},
 };
 
 pub struct R2Controller {
@@ -20,9 +20,14 @@ pub struct R2Controller {
 const PART_SIZE: usize = 6 * 1024 * 1024; // 6 MiB
 
 impl StorageBackend for R2Controller {
-    // TODO: return hash to be put with manifest
     // TODO: pipe in encryption logic when Cipher is complete
+    // upload will upload a file thats >6mib
     async fn upload(&self, file_path: &Path) -> [u8; 32] {
+        let file_metadata = fs::metadata(file_path).await.unwrap();
+        if file_metadata.size() < PART_SIZE as u64 {
+            todo!("quit here")
+        }
+
         let bucket_name = self.bucket_name;
         let region = Region::R2Eu {
             account_id: self.account_id.clone(),
@@ -34,7 +39,6 @@ impl StorageBackend for R2Controller {
             .unwrap()
             .with_path_style();
 
-        let file_metadata = fs::metadata(file_path).await.unwrap();
         let file_type = file_metadata.file_type();
         let file_type = format!("{:?}", file_type);
         let file_name = file_path
@@ -105,7 +109,13 @@ impl StorageBackend for R2Controller {
         blake3.finalize().as_bytes().clone()
     }
 
-    async fn put() {
+    // Small file uploads <5mib
+    async fn put(&self, file_path: &Path) {
+        todo!()
+    }
+
+    //
+    async fn put_manifest(&self, m: serde_json::Value) {
         todo!()
     }
 
