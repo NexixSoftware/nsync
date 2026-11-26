@@ -2,7 +2,6 @@ use core::panic;
 use std::{
     env,
     fs::{self},
-    io::ErrorKind::{NotFound, PermissionDenied},
     path::{Path, PathBuf},
 };
 

@@ -16,7 +16,7 @@
 
 // src/main.rs
 
-#[forbid(unsafe_code)]
+#![forbid(unsafe_code)]
 mod config;
 mod storage;
 
@@ -65,7 +65,8 @@ fn cli() -> Command {
                         .help("sync a directory recursively")
                         .action(ArgAction::SetTrue)
                         .num_args(0)
-                        .default_missing_value("true"),
+                        .default_missing_value("true")
+                        .requires("directory"),
                 ),
         )
 }

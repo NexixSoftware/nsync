@@ -1,7 +1,7 @@
 use std::path::Path;
 
 pub trait StorageBackend {
-    async fn upload(&self, file_path: &Path) -> [u8; 32]; // multipart
+    async fn upload(&self, file_path: &Path) -> Option<[u8; 32]>; // multipart
 
     async fn put(&self, file_path: &Path); // small files
 
