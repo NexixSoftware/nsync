@@ -1,6 +1,6 @@
 // src/storage/vendor/r2.rs
 use s3::{self, Bucket, Region};
-use std::{os::unix::fs::MetadataExt, path::Path};
+use std::path::Path;
 use tokio::{
     fs::{self, File},
     io::{AsyncReadExt, BufReader},
@@ -8,7 +8,7 @@ use tokio::{
 
 use crate::{
     config::credentials::{AllowedCredentials, get_credentials},
-    storage::{backend::StorageBackend, manifest::Manifest},
+    storage::backend::StorageBackend,
 };
 
 pub struct R2Controller {
@@ -22,10 +22,10 @@ const PART_SIZE: usize = 6 * 1024 * 1024; // 6 MiB
 impl StorageBackend for R2Controller {
     // TODO: pipe in encryption logic when Cipher is complete
     // upload will upload a file thats >6mib
-    async fn upload(&self, file_path: &Path) -> [u8; 32] {
+    async fn upload(&self, file_path: &Path) -> Option<[u8; 32]> {
         let file_metadata = fs::metadata(file_path).await.unwrap();
-        if file_metadata.size() < PART_SIZE as u64 {
-            todo!("quit here")
+        if file_metadata.len() < PART_SIZE as u64 {
+            return None;
         }
 
         let bucket_name = self.bucket_name;
@@ -66,8 +66,8 @@ impl StorageBackend for R2Controller {
                 let n = match file.read(&mut buf[running_total..]).await {
                     Ok(n) => n,
                     Err(e) => {
-                        eprintln!("failed to read from file: {e:?}");
-                        0
+                        bucket.abort_upload(file_name, &upload.upload_id).await.ok();
+                        panic!("failed to read from file: {e:?}");
                     }
                 };
 
@@ -106,7 +106,7 @@ impl StorageBackend for R2Controller {
             .await
             .expect("failed to complete multipart upload");
 
-        blake3.finalize().as_bytes().clone()
+        Some(blake3.finalize().as_bytes().clone())
     }
 
     // Small file uploads <5mib

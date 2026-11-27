@@ -1,10 +1,8 @@
-use std::{io::Error, str::Utf8Error};
-
 use base64::{Engine, prelude::BASE64_STANDARD};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 
-use crate::{SEM_VER, storage::{backend::StorageBackend, vendor::r2}};
+use crate::SEM_VER;
 
 #[derive(Serialize, Deserialize)]
 pub struct Manifest {
@@ -29,8 +27,4 @@ pub fn format_manifest(
     };
 
     json!(m)
-}
-
-pub fn write_manifest(file_name: String, alg: String, contents_hash: [u8; 32]) {
-    let manifest = format_manifest(file_name, alg, contents_hash);
 }

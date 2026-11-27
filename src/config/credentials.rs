@@ -11,7 +11,7 @@ pub enum AllowedCredentials {
 pub fn get_credentials(creds: &AllowedCredentials) -> Credentials {
     match creds {
         AllowedCredentials::Env => {
-            dotenv().expect("failed to load .env");
+            let _ = dotenv();
             Credentials::from_env().expect("failed to fetch credentials")
         }
         AllowedCredentials::OsSecureEnclave => todo!(),
